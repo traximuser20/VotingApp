@@ -1,34 +1,34 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# # Logs
+# logs
+# *.log
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# pnpm-debug.log*
+# lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
-*.local
+# dist
+# dist-ssr
+# *.local
 
-# Environment variables
-.env
-.env.*
-!.env.example
-atlas-credentials.env
-*.credentials.env
+# # Environment variables
+# .env
+# .env.*
+ !.env.example
+# atlas-credentials.env
+# *.credentials.env
 
-# Build output
-build/
+# # Build output
+# build/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# # Editor directories and files
+# .vscode/*
+ !.vscode/extensions.json
+# .idea
+# .DS_Store
+# *.suo
+# *.ntvs*
+# *.njsproj
+# *.sln
+# *.sw?

@@ -24,7 +24,9 @@ services:
         condition: service_started
 
   mongo:
-    image: mongo:7
+    build:
+      context: .
+      dockerfile: Dockerfile.database
     ports:
       - "27019:27017"
     volumes:
@@ -32,4 +34,3 @@ services:
 
 volumes:
   mongo-data:
-  

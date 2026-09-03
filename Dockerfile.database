@@ -1,1 +1,9 @@
 FROM mongo:7
+
+WORKDIR /docker-entrypoint-initdb.d
+
+COPY ./db/init.js .
+
+EXPOSE 27017
+
+CMD ["mongod"]

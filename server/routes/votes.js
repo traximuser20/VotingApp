@@ -26,6 +26,7 @@ router.post('/', async (req, res) => {
     const dog = await Vote.countDocuments({ choice: 'dog' })
     res.json({ cat, dog })
   } catch (err) {
+    console.error('Error recording vote:', err)
     res.status(500).json({ error: 'Failed to record vote' })
   }
 })

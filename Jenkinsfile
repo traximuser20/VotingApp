@@ -46,10 +46,27 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                sh """
-                    sleep 10
-                    curl -f http://localhost:${BACKEND_PORT}/api/health || exit 1
-                """
+                echo 'Waiting for services to start...'
+                sh 'sleep 15'
+                script {
+                    def healthy = false
+                    for (int i = 0; i < 5; i++) {
+                        def code = sh(
+                            script: "docker compose -f ${DOCKER_COMPOSE_FILE} exec -T backend node -e \"fetch('http://localhost:5001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\"",
+                            returnStatus: true
+                        )
+                        if (code == 0) {
+                            healthy = true
+                            echo 'Backend health check passed'
+                            break
+                        }
+                        echo "Backend not ready, retrying (${i + 1}/5)..."
+                        sleep 10
+                    }
+                    if (!healthy) {
+                        error 'Backend health check failed after retries'
+                    }
+                }
             }
         }
     }

@@ -114,7 +114,7 @@ watch([tiltX, tiltY, isHovering], () => {
         isCat ? 'border border-[rgba(244,114,182,0.2)]' : 'border border-[rgba(96,165,250,0.2)]',
         {
           'opacity-30 scale-[0.95] saturate-50': hasVoted && isLoser,
-          'glow-win ring-2 ring-[var(--color-win)]': wasSelected && !isLoser,
+          'glow-win ring-2 ring-win': wasSelected && !isLoser,
         },
         isCat ? 'hover:glow-cat-intense' : 'hover:glow-dog-intense'
       ]"
@@ -161,7 +161,7 @@ watch([tiltX, tiltY, isHovering], () => {
 
       <!-- Description -->
       <p
-        class="text-slate-400 text-sm leading-relaxed relative z-10 max-w-[260px]"
+        class="text-slate-400 text-sm leading-relaxed relative z-10 max-w-65"
         :style="{ transform: isHovering ? 'translateZ(15px)' : 'translateZ(0)', transition: 'transform 0.3s ease' }"
       >
         {{ description }}
@@ -186,8 +186,8 @@ watch([tiltX, tiltY, isHovering], () => {
         class="mt-2 px-8 py-2.5 rounded-full font-semibold text-white text-base cursor-pointer transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 relative z-10"
         :class="[
           isCat
-            ? 'bg-gradient-to-r from-cat to-pink-400 hover:shadow-[0_0_25px_rgba(244,114,182,0.5)]'
-            : 'bg-gradient-to-r from-dog to-blue-400 hover:shadow-[0_0_25px_rgba(96,165,250,0.5)]',
+            ? 'bg-linear-to-r from-cat to-pink-400 hover:shadow-[0_0_25px_rgba(244,114,182,0.5)]'
+            : 'bg-linear-to-r from-dog to-blue-400 hover:shadow-[0_0_25px_rgba(96,165,250,0.5)]',
           { 'scale-105': !hasVoted }
         ]"
         :disabled="hasVoted"

@@ -22,6 +22,9 @@ function useAnimatedCounter(targetValue) {
   let raf = null
   let current = 0
 
+  current = targetValue.value
+  display.value = targetValue.value
+
   watch(targetValue, (newVal) => {
     const start = current
     const diff = newVal - start
@@ -54,7 +57,7 @@ const statCardHover = ref(null)
 </script>
 
 <template>
-  <div class="w-full max-w-[860px] flex flex-col items-center gap-8 relative z-10">
+  <div class="w-full max-w-215 flex flex-col items-center gap-8 relative z-10">
     <!-- Animated Header -->
     <header class="text-center animate-slide-up">
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold gradient-text leading-tight">

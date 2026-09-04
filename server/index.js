@@ -21,11 +21,10 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET'
 })
-app.use('/api/', limiter)
-
-app.use('/api/votes', votesRouter)
+app.use('/api/votes', limiter, votesRouter)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })

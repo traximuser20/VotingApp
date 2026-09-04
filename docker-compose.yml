@@ -46,6 +46,18 @@ services:
     user: root
     restart: unless-stopped
 
+  # Instant trigger: smee.io relays GitHub webhook -> Jenkins /github-webhook/
+  # (GitHub cannot reach localhost Jenkins directly; smee gives a stable public URL.)
+  smee:
+    image: node:20-alpine
+    container_name: smee
+    command: >
+      sh -c "npm install -g --no-fund --silent smee-client &&
+             smee --url ${SMEE_URL:-https://smee.io/cat-dog-vote-ci} --target ${SMEE_TARGET:-http://jenkins:8080/github-webhook/}"
+    depends_on:
+      - jenkins
+    restart: unless-stopped
+
 volumes:
   mongo-data:
   jenkins-data:

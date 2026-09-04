@@ -5,8 +5,15 @@ services:
       dockerfile: Dockerfile.frontend
     ports:
       - "3000:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   backend:
     build:
@@ -19,9 +26,15 @@ services:
       MONGODB_URI: mongodb://mongo:27017/cat-dog-vote
       DELETE_SECRET: change-this-to-a-random-string
       CORS_ORIGIN: http://localhost:3000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     depends_on:
       mongo:
-        condition: service_started
+        condition: service_healthy
 
   mongo:
     build:
@@ -31,6 +44,12 @@ services:
       - "27019:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 volumes:
   mongo-data:

@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     environment {
         DOCKER_COMPOSE_FILE = 'docker-compose.app.yml'
         FRONTEND_PORT = '3000'
@@ -37,17 +41,16 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                echo 'Stopping old stack and starting new stack (waiting for healthy)...'
                 sh """
                     docker compose -f ${DOCKER_COMPOSE_FILE} down
-                    docker compose -f ${DOCKER_COMPOSE_FILE} up -d
+                    docker compose -f ${DOCKER_COMPOSE_FILE} up -d --wait --wait-timeout 300
                 """
             }
         }
 
         stage('Health Check') {
             steps {
-                echo 'Waiting for services to start...'
-                sh 'sleep 15'
                 script {
                     def healthy = false
                     for (int i = 0; i < 5; i++) {
@@ -61,7 +64,7 @@ pipeline {
                             break
                         }
                         echo "Backend not ready, retrying (${i + 1}/5)..."
-                        sleep 10
+                        sleep 3
                     }
                     if (!healthy) {
                         error 'Backend health check failed after retries'

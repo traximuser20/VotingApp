@@ -418,13 +418,54 @@ curl http://localhost:5002/api/health   # expects {"status":"ok"}
 
 ## 9. Build Triggers
 
-A build trigger determines _when_ the pipeline runs. This project currently uses **SCM polling** (`H/1 * * * *`), so Jenkins checks the repo every minute and auto-builds whenever new commits land on `main`.
+A build trigger determines _when_ the pipeline runs. This project uses an **instant GitHub webhook trigger** — the pipeline starts the moment a commit lands on `main`, with **no SCM polling lag**. CI stages run first; the CD (Deploy) stage starts immediately after CI succeeds (they are sequential stages in the same run, so there is no idle gap between them).
 
-You can add automated triggers so the pipeline runs without manual steps:
+The trigger is declared in the `Jenkinsfile`:
 
-### Polling SCM (poll the repo on a schedule)
+```groovy
+triggers {
+    githubPush()
+}
+```
 
-Add this to the job config XML:
+Declarative `triggers {}` **replaces** any job-level triggers (the old `H/1 * * * *` SCM polling) the first time the pipeline runs after the change.
+
+### How the webhook reaches localhost Jenkins
+
+GitHub can't POST to `localhost:8080`, so a **smee.io relay** bridges the gap. smee gives you a stable public URL (`https://smee.io/<channel>`); the small `smee` client (added as a service in `docker-compose.yml`) forwards every webhook to `http://jenkins:8080/github-webhook/`.
+
+```
+push → GitHub webhook → https://smee.io/cat-dog-vote-ci → smee client (localhost)
+                                                     ↓
+                            http://jenkins:8080/github-webhook/ → pipeline starts instantly
+```
+
+- The GitHub webhook URL is the smee channel: `https://smee.io/cat-dog-vote-ci`
+- The smee client runs persistently next to Jenkins (start with `docker compose -f docker-compose.yml up -d`)
+- Override the channel via env vars `SMEE_URL` / `SMEE_TARGET` in `docker-compose.yml` if you pick a different name
+
+### Adding the repo webhook (only needed once, by a repo admin)
+
+```bash
+# with gh (admin:repo_hook scope on the repo)
+gh api -X POST repos/{owner}/{repo}/hooks \
+  -f name=web \
+  -f active=true \
+  -f config[url]="https://smee.io/cat-dog-vote-ci" \
+  -f config[content_type]=json \
+  -f events[]=push
+
+# or via the UI: GitHub repo → Settings → Webhooks → Add webhook
+#   Payload URL: https://smee.io/cat-dog-vote-ci
+#   Content type: application/json
+#   Events: Just the push event
+```
+
+> **Note:** Old setup used SCM polling (`H/1 * * * *`) so Jenkins checked the repo once a minute — this added up to 60s of delay between push and build start. Polling has been removed in favor of the webhook trigger.
+
+### Legacy triggers (documented for reference)
+
+#### Polling SCM (poll the repo on a schedule)
 
 ```xml
 <triggers>
@@ -436,7 +477,7 @@ Add this to the job config XML:
 
 This checks the Git repo every 5 minutes and builds only if there are new commits.
 
-### Scheduled builds (cron)
+#### Scheduled builds (cron)
 
 Build at a fixed time (e.g. every night at 2:30 AM):
 
@@ -448,23 +489,15 @@ Build at a fixed time (e.g. every night at 2:30 AM):
 </triggers>
 ```
 
-### Git webhook (GitHub → Jenkins) — recommended for CI
+#### Git webhook (GitHub → Jenkins)
 
-Jenkins can be notified the moment a commit is pushed:
-
-1. Install the **"GitHub Integration"** plugin.
-2. In **Manage Jenkins → System**, set the Jenkins URL (must be reachable from GitHub).
-3. In your job config, enable **"GitHub hook trigger for GITScm polling"**:
-   ```xml
-   <triggers>
-     <com.cloudbees.jenkins.GitHubPushTrigger>
-       <spec/>
-     </com.cloudbees.jenkins.GitHubPushTrigger>
-   </triggers>
-   ```
-4. In the GitHub repo, add a webhook pointing to `http://<jenkins-url>/github-webhook/`.
-
-> **Note:** For webhooks to work, Jenkins must be publicly reachable (or use a tunnel like `ngrok` locally). For this project, the Jenkins container is on `localhost:8080`, so webhooks from the internet aren't reachable — polling or manual triggers are the practical local options.
+```xml
+<triggers>
+  <com.cloudbees.jenkins.GitHubPushTrigger>
+    <spec/>
+  </com.cloudbees.jenkins.GitHubPushTrigger>
+</triggers>
+```
 
 ---
 

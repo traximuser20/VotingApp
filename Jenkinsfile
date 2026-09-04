@@ -4,12 +4,12 @@ pipeline {
     triggers {
         GenericTrigger(
             token: 'cat-dog-vote',
-            jsonPath: '$.ref',
-            printContributedVariables: true,
-            printPostContent: true,
             causeString: 'Triggered by GitHub webhook push',
             regexpFilterText: '$ref',
-            regexpFilterExpression: 'refs/heads/main'
+            regexpFilterExpression: 'refs/heads/main',
+            genericVariables: [
+                [$class: 'GenericVariable', key: 'ref', value: '$.ref']
+            ]
         )
     }
 

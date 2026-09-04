@@ -88,7 +88,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            sh 'docker compose -f ${DOCKER_COMPOSE_FILE} down || true'
         }
     }
 }

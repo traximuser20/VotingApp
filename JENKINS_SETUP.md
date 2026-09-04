@@ -114,6 +114,7 @@ volumes:
 ```
 
 Key points:
+
 - **`/var/run/docker.sock` mount** — lets Jenkins build/run Docker containers using the host's Docker daemon.
 - **`jenkins-data` volume** — persists all Jenkins configuration, plugins, and jobs across container restarts/recreations.
 - **Port 8080** for the UI, **50000** for build agents.
@@ -369,7 +370,7 @@ curl -s -u admin:admin123 -b /tmp/jar.txt -H "Jenkins-Crumb: $CRUMB" \
 '
 ```
 
-> The `Jenkinsfile` and `docker-compose.app.yml` must be **committed and pushed** to the remote repo — otherwise `checkout scm` won't find the Jenkinsfile and the job fails with *"Unable to find Jenkinsfile from git ..."*
+> The `Jenkinsfile` and `docker-compose.app.yml` must be **committed and pushed** to the remote repo — otherwise `checkout scm` won't find the Jenkinsfile and the job fails with _"Unable to find Jenkinsfile from git ..."_
 
 ---
 
@@ -402,14 +403,14 @@ curl http://localhost:5002/api/health   # expects {"status":"ok"}
 
 ## Credentials & Access
 
-| Item | Value |
-|------|-------|
-| Jenkins URL | `http://localhost:8080` |
-| Admin user | `admin` |
-| Admin password | set during first-time setup (e.g. `admin123`) |
+| Item                  | Value                                                           |
+| --------------------- | --------------------------------------------------------------- |
+| Jenkins URL           | `http://localhost:8080`                                         |
+| Admin user            | `admin`                                                         |
+| Admin password        | set during first-time setup (e.g. `admin123`)                   |
 | Initial password file | `/var/jenkins_home/secrets/initialAdminPassword` (before setup) |
-| Pipeline job | `VotingApp-Pipeline` |
-| Repo | `https://github.com/traximuser20/VotingApp` (branch `main`) |
+| Pipeline job          | `VotingApp-Pipeline`                                            |
+| Repo                  | `https://github.com/traximuser20/VotingApp` (branch `main`)     |
 
 > **Note:** This project repo previously had MongoDB Atlas credentials committed in `.env` / `atlas-credentials.env`. These were untracked (added to `.gitignore`) for security. Never commit real credentials.
 
@@ -417,12 +418,14 @@ curl http://localhost:5002/api/health   # expects {"status":"ok"}
 
 ## 9. Build Triggers
 
-A build trigger determines *when* the pipeline runs. This project currently uses **SCM polling** (`H/1 * * * *`), so Jenkins checks the repo every minute and auto-builds whenever new commits land on `main`.
+A build trigger determines _when_ the pipeline runs. This project currently uses **SCM polling** (`H/1 * * * *`), so Jenkins checks the repo every minute and auto-builds whenever new commits land on `main`.
 
 You can add automated triggers so the pipeline runs without manual steps:
 
 ### Polling SCM (poll the repo on a schedule)
+
 Add this to the job config XML:
+
 ```xml
 <triggers>
   <hudson.triggers.SCMTrigger>
@@ -430,10 +433,13 @@ Add this to the job config XML:
   </hudson.triggers.SCMTrigger>
 </triggers>
 ```
+
 This checks the Git repo every 5 minutes and builds only if there are new commits.
 
 ### Scheduled builds (cron)
+
 Build at a fixed time (e.g. every night at 2:30 AM):
+
 ```xml
 <triggers>
   <hudson.triggers.TimerTrigger>
@@ -443,7 +449,9 @@ Build at a fixed time (e.g. every night at 2:30 AM):
 ```
 
 ### Git webhook (GitHub → Jenkins) — recommended for CI
+
 Jenkins can be notified the moment a commit is pushed:
+
 1. Install the **"GitHub Integration"** plugin.
 2. In **Manage Jenkins → System**, set the Jenkins URL (must be reachable from GitHub).
 3. In your job config, enable **"GitHub hook trigger for GITScm polling"**:
@@ -465,18 +473,22 @@ Jenkins can be notified the moment a commit is pushed:
 Jenkins stores secrets (passwords, SSH keys, API tokens) in a credentials store, so pipelines never hard-code secrets.
 
 ### Where credentials live
+
 - **Store:** `Manage Jenkins → Credentials → System → Global credentials (unrestricted)`
 - **API:** `http://localhost:8080/credentials/store/system/domain/_/`
 - This project currently has **0 credentials configured** — it uses a public HTTPS clone URL and inline API auth, so none are needed yet.
 
 ### When you'd need credentials
+
 - Your GitHub repo is **private** (needs a username/password or SSH key)
 - Pushing build artifacts back to a registry (Docker Hub, etc.)
 
 ### Add credentials via the UI
+
 `Manage Jenkins → Credentials → System → Global credentials → Add Credentials` → choose type (Username/password, SSH key, Secret text) and fill in.
 
 ### Reference credentials in the Jenkinsfile
+
 ```groovy
 stage('Checkout') {
     steps {
@@ -492,6 +504,7 @@ withCredentials([usernamePassword(credentialsId: 'github-creds',
 ```
 
 ### Add credentials via the REST API
+
 ```bash
 docker exec jenkins sh -c '
 CRUMB=$(curl -s -u admin:admin123 -c /tmp/jar.txt "http://localhost:8080/crumbIssuer/api/json" | sed -n "s/.*\"crumb\":\"\([^\"]*\)\".*/\1/p")
@@ -508,16 +521,20 @@ curl -s -u admin:admin123 -b /tmp/jar.txt -H "Jenkins-Crumb: $CRUMB" \
 Jenkins needs to know where tools (JDK, Git, Node) live. This project's custom image already has them in `PATH`, so no extra tool configuration is required, but it's good to know where these settings live:
 
 ### Configure tools
+
 `Manage Jenkins → Tools`:
+
 - **JDK** — for Java builds
 - **Git** — the `git` executable (already in PATH here)
 - **NodeJS** — requires the **NodeJS plugin** (not installed by default); the Node.js in this image is on PATH directly, so it works without the plugin.
 
 ### Global environment variables
+
 Set global key/value pairs:
 `Manage Jenkins → System → Global properties → Environment variables`
 
 ### Docker agent
+
 `Manage Jenkins → Manage nodes and clouds` — configure a Docker cloud to spin up build agents on demand (more advanced; the built-in node runs jobs here).
 
 ---
@@ -527,6 +544,7 @@ Set global key/value pairs:
 Jenkins can email or notify on build results so you don't have to watch the dashboard.
 
 ### Email notification
+
 1. Install the **"Email Extension"** plugin.
 2. Configure SMTP: `Manage Jenkins → System → Extended E-mail Notification` (server, credentials, from address, etc.).
 3. Add a step after the pipeline:
@@ -548,6 +566,7 @@ post {
 ```
 
 ### Slack / other integrations
+
 Install plugins such as **Slack Notification** and add the corresponding step in the `post` section.
 
 ---
@@ -555,25 +574,33 @@ Install plugins such as **Slack Notification** and add the corresponding step in
 ## Troubleshooting
 
 ### "No such plugin: cloudbees-folder"
+
 The update-center catalog wasn't loaded (often a transient DNS/`UnknownHostException` at startup). Restart the container to re-fetch the catalog:
+
 ```bash
 docker compose -f docker-compose.yml restart jenkins
 ```
 
 ### `docker-compose: not found`
+
 The container only has `docker compose` (v2). Ensure the Jenkinsfile uses **`docker compose`** (with a space), never `docker-compose`.
 
 ### "Unable to find Jenkinsfile from git"
+
 The `Jenkinsfile` isn't in the remote repo. Commit and push it. Note: GitHub's `raw.githubusercontent.com` may cache — verify via `git` protocol instead.
 
 ### Port conflicts during Deploy
+
 If another compose stack (`cat-dog-vote`) is running the app on ports 3000/5002/27019, the pipeline's deploy fails. Stop the manually-run app containers so the pipeline owns the deployment:
+
 ```bash
 docker stop cat-dog-vote-frontend-1 cat-dog-vote-backend-1 cat-dog-vote-mongo-1
 ```
 
 ### `curl: no crumb was included` (403)
+
 The Jenkins CSRF crumb must come from the same cookie session as the request. Reuse a single `-c`/`-b` cookie jar between the crumb fetch and the POST.
 
 ### Build agents can't reach the backend at localhost
+
 Containers are on separate networks. Run the health check **inside** the backend container with `docker compose exec -T backend ...` instead of `curl localhost:5002` from the Jenkins container.

@@ -12,15 +12,17 @@ node_modules
 # dist-ssr
 # *.local
 
-# # Environment variables
-# .env
-# .env.*
- !.env.example
-# atlas-credentials.env
-# *.credentials.env
+# Environment variables
+.env
+.env.*
+!.env.example
+atlas-credentials.env
+*.credentials.env
 
-# # Build output
-# build/
+# Build output
+dist/
+dist-ssr/
+build/
 
 # # Editor directories and files
 # .vscode/*

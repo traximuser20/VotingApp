@@ -94,6 +94,7 @@ docker-compose down
 | `frontend` | 3000 | Vue.js application |
 | `backend` | 5002 | Express API server |
 | `mongo` | 27019 | MongoDB database |
+| `jenkins` | 8080 | Jenkins CI/CD server |
 
 ### Building Individual Images
 
@@ -107,6 +108,36 @@ docker build -f Dockerfile.backend -t cat-dog-backend .
 # Database
 docker build -f Dockerfile.database -t cat-dog-database .
 ```
+
+---
+
+## 🔄 Jenkins CI/CD
+
+### Running Jenkins
+
+```bash
+# Start Jenkins with the application
+docker-compose up -d jenkins
+
+# Get the initial admin password
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+### Access Jenkins
+
+- **URL:** http://localhost:8080
+- **Username:** (shown in console output above)
+- **Password:** (shown in console output above)
+
+### Configure Jenkins
+
+1. Install suggested plugins
+2. Create admin user or skip to use default
+3. Create new pipeline:
+   - New Item → Pipeline
+   - SCM → Git
+   - Repository URL → your repo URL
+   - Script Path → Jenkinsfile
 
 ---
 

@@ -30,7 +30,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh """
-                    docker-compose -f ${DOCKER_COMPOSE_FILE} build
+                    docker compose -f ${DOCKER_COMPOSE_FILE} build
                 """
             }
         }
@@ -38,8 +38,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
-                    docker-compose -f ${DOCKER_COMPOSE_FILE} down
-                    docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+                    docker compose -f ${DOCKER_COMPOSE_FILE} down
+                    docker compose -f ${DOCKER_COMPOSE_FILE} up -d
                 """
             }
         }
@@ -60,7 +60,7 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            sh 'docker-compose -f ${DOCKER_COMPOSE_FILE} down || true'
+            sh 'docker compose -f ${DOCKER_COMPOSE_FILE} down || true'
         }
     }
 }

@@ -66,7 +66,7 @@ function triggerShake() {
       <VoteCard
         animal="cat"
         emoji="🐱"
-        label="Pussy"
+        label="Billi"
         description="Independent, curious, and secretly plotting world domination"
         :votes="store.votes.cat"
         :has-voted="store.hasVoted"
@@ -79,7 +79,7 @@ function triggerShake() {
       <VoteCard
         animal="dog"
         emoji="🐶"
-        label="Madarchod"
+        label="Doggo"
         description="Loyal, playful, and always happy to see you"
         :votes="store.votes.dog"
         :has-voted="store.hasVoted"

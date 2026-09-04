@@ -27,7 +27,7 @@ function triggerShake() {
 </script>
 
 <template>
-  <div class="w-full max-w-[860px] flex flex-col items-center gap-8 relative z-10">
+  <div class="w-full max-w-215 flex flex-col items-center gap-8 relative z-10">
     <!-- Animated Header -->
     <header class="text-center animate-slide-up">
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold gradient-text leading-tight">
@@ -47,7 +47,7 @@ function triggerShake() {
         style="background: rgba(239, 68, 68, 0.08); backdrop-filter: blur(8px); color: #f87171;"
       >
         <span class="flex items-center justify-center gap-2">
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
           {{ store.error }}
@@ -66,7 +66,7 @@ function triggerShake() {
       <VoteCard
         animal="cat"
         emoji="🐱"
-        label="Billi"
+        label="Pussy"
         description="Independent, curious, and secretly plotting world domination"
         :votes="store.votes.cat"
         :has-voted="store.hasVoted"
@@ -79,7 +79,7 @@ function triggerShake() {
       <VoteCard
         animal="dog"
         emoji="🐶"
-        label="Kutta"
+        label="Madarchod"
         description="Loyal, playful, and always happy to see you"
         :votes="store.votes.dog"
         :has-voted="store.hasVoted"

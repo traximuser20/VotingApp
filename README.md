@@ -271,7 +271,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-![Star History](https://api.star-history.com/svg?repos=your-username/cat-dog-vote&type=Date)
+![Star History](https://api.star-history.com/svg?repos=traximuser20/cat-dog-vote&type=Date)
 
 </div>
 

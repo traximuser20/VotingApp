@@ -417,7 +417,7 @@ curl http://localhost:5002/api/health   # expects {"status":"ok"}
 
 ## 9. Build Triggers
 
-A build trigger determines *when* the pipeline runs. This project currently uses **manual triggers** (`<triggers/>` is empty in the job config), meaning builds only run when you click **Build Now** or POST to `/build`.
+A build trigger determines *when* the pipeline runs. This project currently uses **SCM polling** (`H/1 * * * *`), so Jenkins checks the repo every minute and auto-builds whenever new commits land on `main`.
 
 You can add automated triggers so the pipeline runs without manual steps:
 

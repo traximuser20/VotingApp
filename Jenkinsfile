@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_COMPOSE_FILE = 'docker-compose.app.yml'
         FRONTEND_PORT = '3000'
         BACKEND_PORT = '5002'
         MONGO_PORT = '27019'

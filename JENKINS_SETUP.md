@@ -420,11 +420,19 @@ curl http://localhost:5002/api/health   # expects {"status":"ok"}
 
 A build trigger determines _when_ the pipeline runs. This project uses an **instant GitHub webhook trigger** — the pipeline starts the moment a commit lands on `main`, with **no SCM polling lag**. CI stages run first; the CD (Deploy) stage starts immediately after CI succeeds (they are sequential stages in the same run, so there is no idle gap between them).
 
-The trigger is declared in the `Jenkinsfile`:
+The trigger is declared in the `Jenkinsfile` (requires the `generic-webhook-trigger` plugin):
 
 ```groovy
 triggers {
-    githubPush()
+    GenericTrigger(
+        token: 'cat-dog-vote',
+        jsonPath: '$.ref',
+        printContributedVariables: true,
+        printPostContent: true,
+        causeString: 'Triggered by GitHub webhook push',
+        regexpFilterText: '$ref',
+        regexpFilterExpression: 'refs/heads/main'
+    )
 }
 ```
 
@@ -432,17 +440,18 @@ Declarative `triggers {}` **replaces** any job-level triggers (the old `H/1 * * 
 
 ### How the webhook reaches localhost Jenkins
 
-GitHub can't POST to `localhost:8080`, so a **smee.io relay** bridges the gap. smee gives you a stable public URL (`https://smee.io/<channel>`); the small `smee` client (added as a service in `docker-compose.yml`) forwards every webhook to `http://jenkins:8080/github-webhook/`.
+GitHub can't POST to `localhost:8080`, so a **smee.io relay** bridges the gap. smee gives you a stable public URL (`https://smee.io/<channel>`); the small `smee` client (added as a service in `docker-compose.yml`) forwards every webhook to the **Generic Webhook Trigger** endpoint on Jenkins. We use Generic Webhook Trigger instead of the GitHub plugin's `/github-webhook/` because GitHub's own webhook handler is strict about the exact byte shape of relayed POSTs, while Generic Trigger matches on the JSON body + a token, regardless of headers.
 
 ```
 push → GitHub webhook → https://smee.io/cat-dog-vote-ci → smee client (localhost)
                                                      ↓
-                            http://jenkins:8080/github-webhook/ → pipeline starts instantly
+      http://jenkins:8080/generic-webhook-trigger/invoke?token=cat-dog-vote → pipeline starts instantly
 ```
 
 - The GitHub webhook URL is the smee channel: `https://smee.io/cat-dog-vote-ci`
 - The smee client runs persistently next to Jenkins (start with `docker compose -f docker-compose.yml up -d`)
 - Override the channel via env vars `SMEE_URL` / `SMEE_TARGET` in `docker-compose.yml` if you pick a different name
+- Only pushes to the `main` branch trigger a build (filtered in the trigger config)
 
 ### Adding the repo webhook (only needed once, by a repo admin)
 

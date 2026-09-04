@@ -2,7 +2,15 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
+        GenericTrigger(
+            token: 'cat-dog-vote',
+            jsonPath: '$.ref',
+            printContributedVariables: true,
+            printPostContent: true,
+            causeString: 'Triggered by GitHub webhook push',
+            regexpFilterText: '$ref',
+            regexpFilterExpression: 'refs/heads/main'
+        )
     }
 
     environment {
